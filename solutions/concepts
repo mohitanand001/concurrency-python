@@ -1,0 +1,133 @@
+never have intertwined locks like
+
+def f1():
+    locka.acquire()
+    lockb.acquire()
+
+def f2():
+    lockb.acquire()
+    locka.acquire()
+
+it will result in a deadlock if f1 is called and it acquires locka and waits for lockb
+and f2 is called and it acquires lockb and it waits for locka.
+
+=======================================================================
+
+if you need to model a problem where "X" and "Y" needs to be printed 
+in non-interleaving groups, i.e. X is to be printed 5 times and Y to
+be printed 3 times, like
+XXXXXYYYXXXXXYYY, 
+we can use a count variable in the condition.
+the count variable can vary between +5 to -3
+for "Y" to be printed the condition should be, 0, -1, -2, 3
+for "X" to be printed the condition should be, 0, 1, 2, 3, 4, 5
+
+this will ensure that  neither X nor Y interleaves.
+
+=======================================================================
+
+
+if you need to model a solution where you  need to form group of "X" and "Y" where
+they can interleave and their total count should be "N",
+i.e. X to be used 3 times and Y to be used 2 times,
+XXYXYY|YXYXX|YYXXX|XXXYY are all valid groups
+
+in this situation, you can use 2 condition variables. 
+
+=======================================================================
+
+
+in case you want to model strict alternating between 2 groups i.e.
+XYXYXYXY
+
+
+
+================================================================================
+
+don't modify any variable between
+
+condition_lock.acquire()
+#don't make any changes  here
+condition_lock.wait_for(
+condition1 and condition2
+)
+==================================================================================
+
+
+
+don't change the value of a variable between a semaphore 
+acquire and release block, a semaphore is NOT for ensuring 
+mutual exclusion of the data. Exception is Binary semaphore which
+is almost equivalent to a Lock.
+
+What Semaphore does is that it allows N number of threads at max to
+enter a critical section. In other words, semaphore does the
+"thread unsafe" activity of counting the number of threads that 
+has accessed a certain resource.
+
+https://stackoverflow.com/questions/21736741/what-are-the-practical-uses-of-semaphores
+
+=====================================================================================
+
+
+always release a lock in the finally  section of the code
+so that the lock is always released even in case of an exception
+
+def f1(val):
+   try:
+      lock.acquire()
+   except Exception as e:
+      print(e)
+   finally:
+      lock.release()
+
+
+
+=======================================================================================
+
+
+writing unit test cases for multithreaded code.
+
+=======================================================================================
+
+
+this is as good as synchronous
+threads = [threading.Thread(....) for i in range(100)]
+
+for thread in threads:
+   thread.start()
+   thread.join()
+
+since we start and join the thread in the same call, we're not calling the next thread
+before the completion of the first thread. so we should make the join call in a separate loop.
+
+for thread in threads:
+  thread.start()
+
+for thread in threads:
+  thread.join()
+
+========================================================================================
+
+
+import threading
+condtion = threading.Condition()
+
+with condition:
+   #this code will only proceed further 
+   # once the condition is met
+   # i.e. a == 4, else it will keep `wait_for` a == 4
+   condition.wait_for(
+      lambda: a == 4)
+   print("a is equal to 4")
+
+
+
+==========================================================================================
+
+to solve for starvation, we can take a turn based approach, where we will ensure first
+thread group "A" goes then "B" goes, but in this strict alternating scheme,
+if "A" is finished and is waiting for "B", and let's say "B" is not even present,
+then "A" waits forever.
+
+

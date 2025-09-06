@@ -1,0 +1,55 @@
+import threading
+import time
+
+def f1():
+   time.sleep(20)
+
+t1 = threading.Thread(target=f1)
+t1.start()
+
+t1.join()
+
+t1.start is a non-blocking call
+t1.join is a blocking call
+
+
+stackoverflow
+```
+https://stackoverflow.com/questions/9366264/what-does-it-mean-to-join-a-thread
+To join a thread means to wait until that thread is live. When the thread exits, the thread calling join() will continue executing. Thus, in the above example, the thread (presumably main thread) that is calling a.join() and b.join() will wait until both threads a and b (in that order) finish their job and then continue executing the code that is after b.join().
+
+
+```
+
+
+
+realpython
+
+```
+https://realpython.com/intro-to-python-threading/#daemon-threads
+If you look at the source for Python threading, you’ll see that threading._shutdown() walks through all of the running threads and calls .join() on every one that does not have the daemon flag set.
+
+So your program waits to exit because the thread itself is waiting in a sleep. As soon as it has completed and printed the message, .join() will return and the program can exit.
+
+
+
+
+threads will eventually call join in the end even if you don't call thread.join()
+
+import threading
+import time
+
+def f1():
+   time.sleep(20)
+   print("hello after 20 seconds")
+
+t1 = threading.Thread(target=f1)
+t1.start()
+
+when you execute this it will wait for 20 seconds even though thread.join is not present	
+
+```
+
+
+
+python lock is always created in released mode

@@ -1,0 +1,15 @@
+what is a thread and what is a process
+what is race condition
+what is mutual exclusion
+what are lock, mutex and conditional variables
+
+practice question
+1. task scheduler
+2. web crawler
+3. lru caching using multithreading
+4. bathroom problem/ uber ride problem
+
+exception handling during multithreading, how to handle child/parent exception
+disadvantages of using multithreading in a distributed env
+
+multithreaded map, stack, queues

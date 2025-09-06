@@ -1,0 +1,53 @@
+import threading
+import random
+
+class ABPrinter:
+    def __init__(self):
+        # Condition variable to control alternating between A and B
+        self.condition = threading.Condition()
+        # The flag will be dynamically set based on the first thread that runs
+        self.turn = None  # None means no turn is set yet
+    
+    def print_A(self):
+        with self.condition:
+            # Wait until it's A's turn, if the turn is not set yet, set it to A
+            while self.turn == "B":
+                self.condition.wait()
+            
+            # Set the turn to B after printing A
+            print("A", end="")
+            self.turn = "B"
+            self.condition.notify_all()  # Notify the other thread to run
+    
+    def print_B(self):
+        with self.condition:
+            # Wait until it's B's turn, if the turn is not set yet, set it to B
+            while self.turn == "A":
+                self.condition.wait()
+            
+            # Set the turn to A after printing B
+            print("B", end="")
+            self.turn = "A"
+            self.condition.notify_all()  # Notify the other thread to run
+
+# Instantiate the ABPrinter class
+printer = ABPrinter()
+
+# Create threads for 50 A's and 50 B's
+threads = []
+
+for _ in range(50):
+    threads.append(threading.Thread(target=printer.print_A))
+    threads.append(threading.Thread(target=printer.print_B))
+
+random.shuffle(threads)
+
+# Start all threads
+for t in threads:
+    t.start()
+
+# Join all threads to ensure they complete
+for t in threads:
+    t.join()
+
+
